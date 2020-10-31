@@ -1,23 +1,37 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useContext } from 'react'
+import Sidebar from './components/Sidebar'
+import Chat from './components/Chat'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import Login from './components/Login';
+import { StateContext } from './ContextAPI'
+
 
 function App() {
+
+  const [state] = useContext(StateContext)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      {
+        !state.user ? (
+          <Login />
+        ) : (
+          <div className="app__body">
+            <Router>
+              <Sidebar />
+              <Switch>
+                <Route path="/rooms/:roomId">
+                  <Chat />
+                </Route>
+                <Route path="/">
+                  <Chat />
+                </Route>
+              </Switch>
+            </Router>
+          </div>
+        )
+      }
     </div>
   );
 }

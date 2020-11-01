@@ -1,0 +1,47 @@
+.noChat {
+    flex: 0.7;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 8px solid #4adf83;
+}
+
+.noChat__container {
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 460px;
+}
+
+.noChat__container > img {
+    width: 250px;
+    height: 250px;
+}
+
+.noChat__container > h1 {
+    font-size: 32px;
+    font-weight: 100;
+    color: lightslategray;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.noChat__container > p {
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 10px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 20px;
+}
+
+.noChat__lastP {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid lightgray;
+    padding-top: 20px;
+}

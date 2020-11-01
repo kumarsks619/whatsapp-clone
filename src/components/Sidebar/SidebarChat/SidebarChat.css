@@ -30,8 +30,12 @@ a {
     color: #fff !important;
     height: 60px !important;
     width: 60px !important;
-    position: absolute !important;
-    bottom: 20px !important;
-    right: 20px !important;
+    position: fixed !important;
+    bottom: 12vh !important;
+    left: 27vw !important;
     z-index: 10 !important;
+}
+
+.sidebarChat__addNewBtn:hover {
+    background-color: #59f36b !important;
 }

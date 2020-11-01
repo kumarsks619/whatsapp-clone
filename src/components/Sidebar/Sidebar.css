@@ -8,7 +8,7 @@
 .sidebar__headerContainer {
     display: flex;
     justify-content: space-between;
-    padding: 20px;
+    padding: 10px 20px;
 }
 
 .sidebar__headerRight {
@@ -59,4 +59,11 @@
     overflow: auto;
     background-color: #fff;
     position: relative;
+}
+
+.sidebar__noRoomMsg {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: lightslategray;
 }

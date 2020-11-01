@@ -63,13 +63,17 @@ function Sidebar() {
             <div className="sidebar__chatsContainer">
                 <SidebarChat addNewChat />
                 {
-                    rooms.map((room) => (
-                        <SidebarChat 
-                            key={room.id}
-                            id={room.id}
-                            name={room.data.name}
-                        />
-                    ))
+                    rooms.length > 0 ? (
+                        rooms.map((room) => (
+                            <SidebarChat 
+                                key={room.id}
+                                id={room.id}
+                                name={room.data.name}
+                            />
+                        ))
+                    ) : (
+                        <p className="sidebar__noRoomMsg">Create a Room to start a chat</p>
+                    )
                 }
             </div>
         </div>

@@ -8,15 +8,23 @@ import firebase from 'firebase'
 import { StateContext } from '../../ContextAPI'
 
 
+
 function Chat() {
 
+    const { roomId } = useParams()
     const [state] = useContext(StateContext)
 
     const [seed, setSeed] = useState('')
     const [inputMsg, setInputMsg] = useState('')
-    const { roomId } = useParams()
     const [roomName, setRoomName] = useState('')
     const [messages, setMessages] = useState([])
+    const [lastSeen, setLastSeen] = useState('')
+
+
+    const scrollToBottom = () => {
+        let element = document.getElementById("scrollToBottomDiv")
+        element.scrollTop = 0
+    }
 
     
     useEffect(() => {
@@ -30,7 +38,7 @@ function Chat() {
             db.collection("rooms")
                 .doc(roomId)
                 .collection("messages")
-                .orderBy('timestamp', 'asc')
+                .orderBy('timestamp', 'desc')
                 .onSnapshot((snapshot) => {
                     setMessages(snapshot.docs.map((doc) => (
                         doc.data()
@@ -38,12 +46,31 @@ function Chat() {
                 })
                 
         }
+
+        scrollToBottom()
+
     }, [roomId])
 
 
     useEffect(() => {
         setSeed(Math.floor(Math.random() * 5000))
     }, [roomId])
+
+
+
+    useEffect(() => {
+        const weekNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        const monthNames = ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        
+        let lastOtherPersonMsg = messages.find((message) => message.name !== state.user.displayName)
+
+        let dateObj = new Date(lastOtherPersonMsg?.timestamp?.toDate())
+        
+        let lastSeenString = `last seen at ${dateObj.getHours()}:${dateObj.getMinutes()} on ${weekNames[dateObj.getDay()]}, ${dateObj.getDate()} ${monthNames[dateObj.getMonth()]}` 
+
+        setLastSeen(lastSeenString)
+
+    }, [messages, state.user.displayName])
 
 
     const handleSendMessage = (e) => {
@@ -59,7 +86,9 @@ function Chat() {
             })
 
         setInputMsg('')
+        scrollToBottom()
     }
+
 
 
     return (
@@ -69,11 +98,7 @@ function Chat() {
                 
                 <div className="chat__headerInfo">
                     <h3>{roomName}</h3>
-                    <p>last seen on &nbsp;
-                        {
-                            new Date(messages[messages.length -1]?.timestamp?.toDate()).toUTCString()
-                        }
-                    </p>
+                    <p>{lastSeen}</p>
                 </div>
                 
                 <div className="chat__headerIcons">
@@ -89,7 +114,7 @@ function Chat() {
                 </div>
             </div>
 
-            <div className="chat__bodyContainer">
+            <div className="chat__bodyContainer" id="scrollToBottomDiv">
                 {
                     messages.map(({name, text, timestamp}) => (
                         <p
@@ -100,7 +125,7 @@ function Chat() {
                             {text}
                             <p className="chat__messageTimestamp">
                                 {
-                                    new Date(timestamp?.toDate()).toUTCString()
+                                    new Date(timestamp?.toDate()).toUTCString().replace("GMT", "").slice(0,-4)
                                 }
                             </p>
                         </p>

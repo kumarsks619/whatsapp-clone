@@ -5,6 +5,7 @@ import Chat from './components/Chat'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Login from './components/Login';
 import { StateContext } from './ContextAPI'
+import NoChat from './components/NoChat';
 
 
 function App() {
@@ -25,7 +26,7 @@ function App() {
                   <Chat />
                 </Route>
                 <Route path="/">
-                  <Chat />
+                  <NoChat />
                 </Route>
               </Switch>
             </Router>

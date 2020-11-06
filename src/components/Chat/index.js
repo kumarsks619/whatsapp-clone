@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import { db } from '../../assets/firebase'
 import firebase from 'firebase'
 import { StateContext } from '../../ContextAPI'
+import NoChat from '../NoChat'
 
 
 
@@ -19,6 +20,8 @@ function Chat() {
     const [roomName, setRoomName] = useState('')
     const [messages, setMessages] = useState([])
     const [lastSeen, setLastSeen] = useState('')
+    const [roomPassword, setRoomPassword] = useState('')
+    const [accessDenied, setAccessDenied] = useState(true)
 
 
     const scrollToBottom = () => {
@@ -29,27 +32,43 @@ function Chat() {
     
     useEffect(() => {
         if(roomId) {
-            db.collection("rooms")
-                .doc(roomId)
-                .onSnapshot((snapshot) => (
-                    setRoomName(snapshot.data().name)
-                ))
+            const inputPassword = prompt("Enter Password")
 
             db.collection("rooms")
                 .doc(roomId)
-                .collection("messages")
-                .orderBy('timestamp', 'desc')
-                .onSnapshot((snapshot) => {
-                    setMessages(snapshot.docs.map((doc) => (
-                        doc.data()
-                    )))
-                })
+                .get()
+                .then((doc) => {
+                    if(doc.exists) {
+                        setRoomPassword(doc.data().password)
+
+                        if(inputPassword === roomPassword) {
+                            setAccessDenied(false)
+
+                            db.collection("rooms")
+                                .doc(roomId)
+                                .onSnapshot((snapshot) => (
+                                    setRoomName(snapshot.data().name)
+                                ))
                 
+                            db.collection("rooms")
+                                .doc(roomId)
+                                .collection("messages")
+                                .orderBy('timestamp', 'desc')
+                                .onSnapshot((snapshot) => {
+                                    setMessages(snapshot.docs.map((doc) => (
+                                        doc.data()
+                                    )))
+                                })
+
+                            scrollToBottom()
+                        }else {
+                            setAccessDenied(true)
+                        }
+                    }
+                })
         }
 
-        scrollToBottom()
-
-    }, [roomId])
+    }, [roomId, roomPassword])
 
 
     useEffect(() => {
@@ -59,18 +78,21 @@ function Chat() {
 
 
     useEffect(() => {
-        const weekNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-        const monthNames = ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+        if(!accessDenied) {
+            const weekNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            const monthNames = ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            
+            let lastOtherPersonMsg = messages.find((message) => message.name !== state.user.displayName)
+
+            let dateObj = new Date(lastOtherPersonMsg?.timestamp?.toDate())
+            
+            let lastSeenString = `last seen at ${dateObj.getHours()}:${dateObj.getMinutes()} on ${weekNames[dateObj.getDay()]}, ${dateObj.getDate()} ${monthNames[dateObj.getMonth()]}` 
+
+            setLastSeen(lastSeenString)
+        }
         
-        let lastOtherPersonMsg = messages.find((message) => message.name !== state.user.displayName)
-
-        let dateObj = new Date(lastOtherPersonMsg?.timestamp?.toDate())
-        
-        let lastSeenString = `last seen at ${dateObj.getHours()}:${dateObj.getMinutes()} on ${weekNames[dateObj.getDay()]}, ${dateObj.getDate()} ${monthNames[dateObj.getMonth()]}` 
-
-        setLastSeen(lastSeenString)
-
-    }, [messages, state.user.displayName])
+    }, [messages, state.user.displayName, accessDenied])
 
 
     const handleSendMessage = (e) => {
@@ -91,7 +113,7 @@ function Chat() {
 
 
 
-    return (
+    return !accessDenied ? (
         <div className="chat">
             <div className="chat__headerContainer">
                 <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
@@ -117,7 +139,7 @@ function Chat() {
             <div className="chat__bodyContainer" id="scrollToBottomDiv">
                 {
                     messages.map(({name, text, timestamp}) => (
-                        <p
+                        <div
                             key={timestamp} 
                             className={`chat__message ${name === state.user.displayName && "chat__messageSent"}`}
                         >
@@ -128,7 +150,7 @@ function Chat() {
                                     new Date(timestamp?.toDate()).toUTCString().replace("GMT", "").slice(0,-4)
                                 }
                             </p>
-                        </p>
+                        </div>
                     ))
                 }
             </div>
@@ -152,6 +174,11 @@ function Chat() {
                 { inputMsg ? <Send /> : <Mic /> }
             </div>
         </div>
+    ) : (
+        <NoChat 
+            headerText="Wrong Password" 
+            paraText="Ask the person who created the room for the correct password."  
+        />
     )
 }
 

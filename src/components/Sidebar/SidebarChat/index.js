@@ -34,10 +34,12 @@ function SidebarChat({ addNewChat, id, name }) {
 
     const createNewChat = () => {
         const roomName = prompt("Enter name for the Chat Room")
+        const roomPassword = prompt("Set a password for your Room")
 
         if(roomName) {
             db.collection("rooms").add({
-                name: roomName
+                name: roomName,
+                password: roomPassword
             })
         }
     }

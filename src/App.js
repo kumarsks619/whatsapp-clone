@@ -26,7 +26,11 @@ function App() {
                   <Chat />
                 </Route>
                 <Route path="/">
-                  <NoChat />
+                  <NoChat 
+                    headerText="Open a Chat Room" 
+                    paraText="WhatsApp Clone connects through Google account and to start a chat with someone, 
+                    you have to create a Chat Room first"  
+                  />
                 </Route>
               </Switch>
             </Router>
